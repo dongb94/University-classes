@@ -1,0 +1,33 @@
+package mandu;
+
+import javax.swing.*;
+
+public class ArrowPractice extends JFrame{
+
+	public void setFrame(){
+		setTitle("arrow ex");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		setSize(200, 200);
+	}
+	public static void main(String[] args) {
+		
+		for (int i = 0; i < 100; i++) {
+			int time = (int) Time.getTime();
+			System.out.println(time);
+		}
+		ArrowPractice a=new ArrowPractice();
+		a.setFrame();
+		
+		ImageIcon chopstick=new ImageIcon("Image/chopstick");
+		JLabel L=new JLabel(chopstick);
+		L.setLocation(0, 0);
+		L.setVisible(true);
+		
+		
+		a.add(L);
+
+		a.setVisible(true);
+	}
+
+}

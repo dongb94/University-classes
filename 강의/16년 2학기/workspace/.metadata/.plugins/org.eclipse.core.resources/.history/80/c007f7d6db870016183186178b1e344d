@@ -1,0 +1,11 @@
+package mandu;
+
+public class ArrowPractice {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		int time=(int)Time.getTime();
+		System.out.println(time);
+	}
+
+}

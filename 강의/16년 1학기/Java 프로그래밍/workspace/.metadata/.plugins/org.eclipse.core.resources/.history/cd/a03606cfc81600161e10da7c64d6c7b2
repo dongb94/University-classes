@@ -1,0 +1,30 @@
+package 조합및다형성_12;
+public class Example{
+	public static void main(String[] args) {
+		Derived derived = new Derived();
+		System.out.print(derived.s);
+		derived.m();
+		derived.n();
+		Base base = new Derived();
+		System.out.print(base.s);
+		base.m();
+	}
+}
+class Base {
+	String s = "A";
+	void m(){
+		System.out.print("B");
+	}
+	private void n(){
+		System.out.print("C");
+	}
+}
+class Derived extends Base {
+	String s = "D";
+	void m(){
+		System.out.print("E");
+	}
+	public void n(){
+		System.out.print("F");
+	}
+}

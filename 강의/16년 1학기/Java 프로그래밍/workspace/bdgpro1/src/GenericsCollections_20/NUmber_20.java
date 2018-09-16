@@ -1,0 +1,19 @@
+package GenericsCollections_20;
+
+import java.util.ArrayDeque;
+
+public class NUmber_20 {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		ArrayDeque<String> dq = new ArrayDeque<String>();
+		dq.push("January");
+		dq.push("February");
+		dq.push("March");
+		dq.pop();
+		dq.peek();
+		while(dq.peek() != null) 
+			System.out.println(dq.pop());
+	}
+
+}

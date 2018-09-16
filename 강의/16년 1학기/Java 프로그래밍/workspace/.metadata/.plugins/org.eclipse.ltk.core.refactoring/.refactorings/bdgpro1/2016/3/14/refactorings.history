@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename compilation unit &apos;숙제5.Swich01.java&apos; to &apos;Switch01.java&apos;&#x0D;&#x0A;- Original project: &apos;bdgpro1&apos;&#x0D;&#x0A;- Original element: &apos;숙제5.Swich01.java&apos;&#x0D;&#x0A;- Renamed element: &apos;숙제5.Switch01.java&apos;" description="Rename compilation unit &apos;Swich01.java&apos;" flags="2" id="org.eclipse.jdt.ui.rename.compilationunit" input="/src&lt;숙제5{Swich01.java" name="Switch01.java" references="false" stamp="1459081317736" version="1.0"/>
+</session>

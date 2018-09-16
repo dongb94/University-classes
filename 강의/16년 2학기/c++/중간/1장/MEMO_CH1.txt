@@ -1,0 +1,76 @@
+
+[Updated: 2016/9/5]
+
+1장 C++시작
+
+
+
+1.1 컴퓨터와 프로그래밍
+
+
+1.2 C++언어의 역사
+
+ 1) C언어로 부터 발전된 역사 - 교재 그림 1.4
+ 2) 객체지향 언어의 역사 - 보조 슬라이드 cpp1.ppt
+ 3) 표준 C++ 역사 
+     - 보조 슬라이드 
+       <불어오는 변화의 바람,From C++98 to C++11,14Ver 1.0 - Publish>
+       8페이지
+
+ C++컴파일러 종류
+
+  - Visual C++ (Microsoft)
+  - CLang/LLVM (Apple)
+  - GNU (Open Source Community)
+
+
+1.3 C++언어의 주요 특징
+
+  - C언어 대비 새로운 특징:
+
+     function/operator overloading          
+     reference type (cf. Java's reference type)
+     new/delete operator
+     classes
+     generics
+
+  - 객체지향언어
+
+     객체 / 클래스 / 캡슐화
+
+     상속 inheritance / 다형성 polymorphism
+
+     (+ 제네릭)  => 비객체지향적 특징
+
+ 
+1.4 [ C++ ] 프로그램 개발 과정 
+
+   - 그림 1.11
+
+
+
+1.5 C++ 표준라이브러리
+
+   - 주요 헤더 파일 표1-1
+
+      C++ 입출력 라이브러리
+      C 라이브러리
+      C++ STL 라이브러리
+
+   - http://www.cpluscplus.com/reference/
+
+   - https://msdn.microsoft.com/ko-kr/library/3bstk3k5.aspx  (The standard C++ programming language)
+
+   - https://msdn.microsoft.com/ko-kr/library/cscc687y.aspx  (The standard C++ library)
+
+   - https://isocpp.org/  (C++ 각종 자료)
+
+   - http://www.boost.org/  (C++ 프로그래밍 예제/확장 라이브러리)
+
+
+1.6 Visual C++를 이용한 C++ 프로그램 개발
+
+   - 교재 참고
+      
+
+

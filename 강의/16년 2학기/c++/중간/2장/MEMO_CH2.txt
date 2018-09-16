@@ -1,0 +1,230 @@
+
+[Updated: 2016/9/6]
+
+2장 C++ 프로그래밍의 기본
+
+2.1 C++프로그램의 기본 요소와 화면 출력
+
+ - 기본적인 C++ main 함수 골격
+
+  #include <iostream>
+  using namespace std;
+
+  int main() {
+
+     // ...
+
+     return 0;
+  }
+
+- 예제 2-3)
+
+  width와 height를 입력받아 면적을 출력하는 프로그램
+
+
+2.2 namespace와 std::
+
+ - 이름 공간을 사용하는 방법 (1,2,3 모두 동일한 의미)
+
+  (1)
+  using namespace std;
+
+  cout << "Hello";
+
+  (2)
+  using std::cout;
+
+  cout << "Hello"'
+
+  (3)
+  std::cout << "Hello"; 
+
+
+ - :: 영역 지정 연산자
+
+   예) std::cout  ==> std 이름 공간에 선언된 객체 cout
+       C::field ==> C 클래스에 선언된 (정적) 멤버 변수 field
+
+
+
+2.3 키 입력 받기 / 2.4 키보드로 문자열 입력
+
+ - string 클래스 활용
+
+   실습문제 13번)
+ 
+     2  + 34
+     -1 - 36
+     33 * 2
+     77 / 2
+
+   를 입력 받아 계산 결과를 출력하는 프로그램을 작성하시오.
+
+
+ - C 스트링과 string 클래스
+    
+     char str[100];   // str을 C 스트링으로 부른다.
+     string str;      // str을 string 클래스의 객체라 부른다.
+
+
+ 1) C 스트링
+
+ C 스트링 예
+
+   "Hello" ===> 'H', 'e', 'l', 'l', 'o', '\0'
+
+ C 스트링 변수 (char형 배열)
+    char str[MAX_LENGTH] = "Hello";   
+
+    str[0] ===> 'H'
+    str[4] ===> '\0'
+
+ cstring 라이브러리
+
+    strcpy, strcat, strcmp, ...
+
+    cf.
+
+    char another[MAX_LENGTH];
+
+    another = str;  ===>  strcpy(another, str);
+
+    if ( another == str ) {   ===>    if ( strcmp(another, str) == 0 ) {
+      ...                                                 ...
+    }                                               }
+
+
+ C 스트링 입출력
+
+    단어 입력 (' '이 나올때까지)
+         cin >> str;
+
+    줄 입력 ('\n'이 나올때 까지)
+         cin.getline( str, MAX_LENGTH );
+
+    문자 입력
+         char ch;
+         cin.get ( ch );
+
+    단어/줄/문자 출력
+         cout << str;
+         cin.put ( ch );
+
+ cctype 라이브러리
+
+    toupper, tolower, isupper, islower,
+    isdigit, isalpha, isalnum, isspace, ...
+
+
+
+
+ 2) string 클래스
+
+    string s1, s2, s3;
+
+    s1 = "Hello";     (cf. strcpy)
+    s2 = s1;            (cf. strcpy)
+    s3 = s1 + s2;    (cf. strcat)
+
+    string phrase;     // 빈 문자열 ""을 표현하는 표준 스트링
+
+    string noun("ants");    // C 스트링과 동일한 내용을 표현하는 표준 스트링
+    string noun = "ants";  //
+
+    string noun(s1); //  표준 스트링을 복사해서 noun을 생성
+
+    if (  s1 == s2 ) {    (cf. strcmp)
+       ...
+    }
+
+
+   string 클래스를 사용한 입출력
+
+     단어 입력
+
+       string s1;
+       cin >> s1;
+    
+
+     줄 입력
+
+       string line;
+       getline ( cin, line );  // getline은 전역함수
+
+
+   string 라이브러리
+
+     #include <string>
+     using namespace std;
+
+
+ 3) C 스트링과 string 클래스 객체 간의 변환
+
+   a) C스트링을 string 클래스 객체로 
+
+     char cstr[MAX_LENGTH] = "My C String";
+     string cppstr;
+
+     cppstr = cstr;   (cf. 할당연산자 => 10장에서 논의)
+
+   b) string 클래스 객체를 C스트링으로
+
+     strcpy( cstr, cppstr.c_str() );
+
+
+ (4) 스트링 스트림 클래스(string stream class)
+
+    (키보드가 아니라) 문자열에서 입력받고 
+    (화면이 아니라) 문자열로 출력하는 기능을 제공하는 클래스
+
+
+    sstream 클래스 라이브러리
+        ostringstream 클래스    (cf. sprintf 함수)
+        istringstream 클래스    (cf. sscanf 함수)
+
+
+    예제)
+     ostringstream ost;
+
+     ost << 123;
+
+     string s = ost.str();  // "123"
+
+     istringstream ist(s);
+     int x;
+
+     ist >> x;    // 123
+
+
+    cf. 위 예제를 C언어에서 작성하는 방법
+
+      char buf[MAX_LEN];
+      sprintf( buf, "%d", 123);   // "123"
+
+      int x;
+      sscanf( buf, "%d", &x );   // 123  
+    
+
+
+
+ (5) 입력의 끝(EOF) 테스트
+
+   예제)
+     while ( cin.eof() == false ) {
+       cin >> i;
+       ...
+     }
+
+   cf. 위 예제를 C언어에서 작성하는 방법
+
+     while ( scanf("%d", &i) != EOF ) {
+       ...
+     }
+
+
+
+2.5 #include <iostream>에 숨은 진실
+
+ - 
+
+

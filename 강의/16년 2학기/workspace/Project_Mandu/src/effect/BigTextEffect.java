@@ -1,0 +1,67 @@
+package effect;
+
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
+
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+/** '거대화'텍스트 효과를 출력하는 클래스
+ * @author 변동건
+ * @see EffectManager
+ * */
+public class BigTextEffect extends EffectManager implements Runnable{
+	/**이미지 URL*/
+	private URL imageURL;
+	/** 텍스트를 출력할 프레임과 텍스트 라벨로 초기화 
+	 * @param game 텍스트를 출력할 프레임 
+	 * @param bigText 프레임에 출력할 텍스트 라벨*/
+	public BigTextEffect(JFrame game, JLabel bigText) {
+		super(game, bigText);
+		effect.setLocation(effect.getX()-150, effect.getY()-190);
+		effect.setSize(371, 151);
+		game.add(bigText);
+	}
+	/**효과를 출력하는 run 메소드*/
+	public void run(){
+		for(int i=1; i<5; i++){
+			BufferedImage effectImage = null;
+			try {
+				Thread.sleep(150);
+				effectImage=ImageIO.read(imageURL=getClass().getClassLoader().getResource("effect/bigText"+i+".png"));
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			ImageIcon effectIcon=new ImageIcon(effectImage);
+			effect.setIcon(effectIcon);
+			effect.validate();
+			effect.repaint();
+		}
+		try{
+			Thread.sleep(300);
+		}catch(InterruptedException e){
+			
+		}
+		for(int i=4; i>0; i--){
+			BufferedImage effectImage = null;
+			try {
+				Thread.sleep(150);
+				effectImage=ImageIO.read(imageURL=getClass().getClassLoader().getResource("effect/bigText"+i+".png"));
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			ImageIcon effectIcon=new ImageIcon(effectImage);
+			effect.setIcon(effectIcon);
+			effect.validate();
+			effect.repaint();
+		}
+		gameFrame.remove(effect);
+		gameFrame.repaint();
+	}
+}

@@ -1,0 +1,11 @@
+- Main menu selected menu in the mouse and keyboard to detect the movements of functionality
+- Menu selection and component functions that appeared to fit on the menu.
+- Functions to record and to display the time during a game.
+- Sound effects and to control the background music, whose function is to control the volume.
+- over time, the number of chopsticks increase
+- Chopstick launched towards the character
+- Certain amount of time, a complicated pattern of chopsticks that was launched.
+- Dumpling can not escaped the plate
+- The ability to ask me a game over for storage of records.
+- That shows the rankings for storing a record.
+- If dumpling touches the chopstick ,game is over

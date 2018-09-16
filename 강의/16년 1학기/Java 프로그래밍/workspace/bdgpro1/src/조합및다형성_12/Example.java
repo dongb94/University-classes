@@ -1,0 +1,20 @@
+package 조합및다형성_12;
+class Example{
+	   public static void main(String arguments[]) {
+	      Derived derived = new Derived();
+	      derived.letWork();
+	   }
+	}
+	class Base {
+	   static void work() {
+	      System.out.println("Base");
+	   }
+	   void letWork() {
+	      work(); 
+	   }
+	}
+	class Derived extends Base {
+	   static void work() {
+	      System.out.println("Derived");
+	   }
+	}

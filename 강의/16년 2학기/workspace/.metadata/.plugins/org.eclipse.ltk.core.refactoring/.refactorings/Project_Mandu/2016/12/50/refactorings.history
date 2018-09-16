@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;Project_Mandu/bin/game.PNG&apos; to &apos;game.png&apos;" description="Rename resource &apos;game.PNG&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="bin/game.PNG" name="game.png" stamp="1481114271368" updateReferences="true"/>
+</session>

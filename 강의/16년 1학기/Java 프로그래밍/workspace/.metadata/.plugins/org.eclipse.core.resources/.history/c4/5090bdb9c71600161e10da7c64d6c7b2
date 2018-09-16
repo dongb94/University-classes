@@ -1,0 +1,15 @@
+package 조합및다형성_12;
+public class Binding {
+
+	public static void main(String[] args) {
+		
+	}
+
+}
+
+class a{
+	
+}
+class b extends a{
+	
+}

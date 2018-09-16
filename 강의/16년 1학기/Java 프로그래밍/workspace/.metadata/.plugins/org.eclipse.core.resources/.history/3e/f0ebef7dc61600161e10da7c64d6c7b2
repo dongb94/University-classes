@@ -1,0 +1,17 @@
+package 조합및다형성_12;
+class Animal {
+	   void print(Bird bird) {
+	      System.out.println("Super print(Bird)");
+	   }
+	}
+	class Bird extends Animal {
+	   void print(Animal animal) {
+	      System.out.println("Sub print(Animal)");
+	   }
+	}
+	public class Example{
+	   public static void main(String[] args) {
+	      Animal a = new Bird();
+	      a.print(new Bird()); 
+	   }
+	}

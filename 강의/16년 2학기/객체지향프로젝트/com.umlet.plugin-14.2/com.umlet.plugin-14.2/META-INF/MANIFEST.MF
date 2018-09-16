@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Bundle-SymbolicName: com.umlet.plugin;singleton:=true
+Archiver-Version: Plexus Archiver
+Built-By: Dia
+Require-Bundle: org.eclipse.ui,org.eclipse.ui.ide,org.eclipse.core.res
+ ources,org.eclipse.core.runtime,org.eclipse.jdt.core;resolution:=opti
+ onal
+Bundle-ManifestVersion: 2
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.eclipse.core.filesystem
+Eclipse-LazyStart: true
+Ant-Version: Apache Ant 1.9.4
+Export-Package: com.baselet.plugin,com.baselet.plugin.gui,com.baselet.
+ plugin.wizard
+Bundle-Name: UMlet
+Bundle-Version: 14.2.0
+Bundle-ClassPath: .,lib/smtp.jar,lib/bcel.jar,lib/batik-xml.jar,lib/ja
+ vaparser-core.jar,lib/log4j.jar,lib/commons-io.jar,lib/batik-awt-util
+ .jar,lib/batik-svggen.jar,lib/umlet-swing.jar,lib/umlet-elements.jar,
+ lib/itextpdf.jar,lib/batik-dom.jar,lib/batik-util.jar,lib/batik-ext.j
+ ar,lib/ecj.jar,lib/rsyntaxtextarea.jar,lib/mailapi.jar,lib/slf4j-log4
+ j12.jar,lib/autocomplete.jar,lib/jlibeps.jar,lib/slf4j-api.jar
+Bundle-Activator: com.baselet.plugin.MainPlugin
+Created-By: 1.8.0_65-b17 (Oracle Corporation)
+Build-Jdk: 1.8.0_65
+
