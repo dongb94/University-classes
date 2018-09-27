@@ -1,0 +1,731 @@
+
+import java.io.*;
+
+public class Assignment {
+   public static void main(String[] args) {
+      instructionCycle cpu = new instructionCycle(2);//|1= 표 6-8|  |2= 표 6-13|  |3= 표 6-16|
+      cpu.printCycle();
+   }
+}
+
+
+class instructionCycle{
+   private int DR, AR, AC, IR, INPR, OUTPR, TR, SC, indirection, head, I, E, S, D7, INpR, FGI, OUTR, FGO, IEN;   //각각의 메모리 또는 레지스터
+   int PC = 0;         //프로그램 카운터
+   private int[] M = new int[5000];
+   private String symbol;
+
+   instructionCycle(int r){                //메모리 호출
+      setMemory(r);
+   }
+   
+   private void setMemory(int r){
+	   Assembler assembler=new Assembler(r);//어셈블러 호출  |1= 표 6-8|  |2= 표 6-13|  |3= 표 6-16|
+	   M=assembler.setHexcode(M);
+   }
+
+   private String symbolCheck(int a) {                          //instruction 값인지 체크해 심볼을 문자열로 반환하는 메소드
+      //instruction 값인지 체크해 심볼을 문자열로 반환하는 메소드
+
+      head = (a / 0x1000) ; 
+      //16진수의 맨 앞을 얻음 ex) 0x1234 이면 head = 1
+      D7 = 0;
+
+      indirection = (short) (head / 8); 
+      //indirect bit 를 얻음 ex) 0~7로 시작하면 0, 8~f로 시작하면 1
+
+      symbol = "nop";
+      //symbol을 nop 으로 설정한 후 조건에 따라 바꾼다.
+
+      String address = Integer.toHexString(a + 0x10000).substring(2);   
+      //주소값을 미리 넣는다.
+
+      String ISymbol="";
+      //간접주소 처리를 위한 문자열
+      
+      if(head == 7){ // 7xxx 
+         address = "   "; //주소를 없앤다
+         D7 = 1;
+
+         switch( a & 0x0FFF){ //뒷자리를 비교한다.
+         case 0x800:
+            symbol = "CLA";
+            break;
+         case 0x400:
+            symbol = "CLE";
+            break;
+         case 0x200:
+            symbol = "CMA";
+            break;
+         case 0x100:
+            symbol = "CME";
+            break;
+         case 0x80:
+            symbol = "CIR";
+            break;
+         case 0x40:
+            symbol = "CIL";
+            break;
+         case 0x20:
+            symbol = "INC";
+            break;
+         case 0x10:
+            symbol = "SPA";
+            break;
+         case 0x8:
+            symbol = "SNA";
+            break;
+         case 0x4:
+            symbol = "SZA";
+            break;
+         case 0x2:
+            symbol = "SZE";
+            break;
+         case 0x1:
+            symbol = "HLT";
+            break;
+         }
+      }
+      else if(head == 0xf){ // fxxx
+         address = "   "; //주소를 없앤다
+         D7 = 1;
+
+         switch( a & 0x0FFF){ //뒷자리를 비교한다.
+         case 0x800:
+            symbol = "INP";
+            break;
+         case 0x400:
+            symbol = "OUT";
+            break;
+         case 0x200:
+            symbol = "SKI";
+            break;
+         case 0x100:
+            symbol = "SKO";
+            break;
+         case 0x80:
+            symbol = "ION";
+            break;
+         case 0x40:
+            symbol = "IOF";
+            break;
+         }
+      }
+      else{
+
+         switch(head % 8){ // 
+         case 0: //  (a=0xxx, a=8xxx)
+            symbol = "AND";
+            break;
+         case 1: // (1xxx, 9xxx)
+            symbol = "ADD";
+            break;
+         case 2: // (2xxx, Axxx)
+            symbol = "LDA";
+            break;
+         case 3: // (3xxx, Bxxx)
+            symbol = "STA";
+            break;
+         case 4:
+            symbol = "BUN";
+            break;
+         case 5:
+            symbol = "BSA";
+            break;
+         case 6:
+            symbol = "ISZ";
+            break;
+         }
+         if (indirection == 1) // indirect bit 가 1 이면 간접 주소임을 표시한다.
+        	 ISymbol = "I ";
+      }
+      return ISymbol + symbol + "  " + address; // symbol + 주소값 반환
+
+   }
+
+   private void start(){            //시작 메소드
+      SC = 0;
+   }
+
+   private void T0(){               // T0 일 때
+      SC++;
+      AR = (short) PC;
+      System.out.println("T0 : ");
+      System.out.println("AR <- PC");
+      System.out.println("AR = " + Integer.toHexString(AR + 0x10000).substring(2));
+      System.out.println();
+   }
+
+   private void T1(){              // T1 일 때
+      SC++;
+      IR = M[AR]; PC = (short) (PC + 1);
+      System.out.println("T1 : ");
+      System.out.println("IR <- M[AR], PC <- PC + 1");
+      System.out.println("IR = " + Integer.toHexString(M[AR] + 0x10000).substring(1) + ", PC = " + Integer.toHexString(PC + 0x10000).substring(2));
+      System.out.println();
+   }
+
+   private void T2(){             //T2 일 때
+      SC++;
+      symbol = symbolCheck(M[AR]);
+      AR = (short) (IR & 0x0fff); I = indirection;
+
+      System.out.println("T2 : ");
+      System.out.println("Decode operation code in IR(12-14)");
+      System.out.println("AR <- IR(0-11), I <- IR(15)");
+      System.out.println("AR = " + Integer.toHexString(AR + 0x10000).substring(2) + ", I = " + I);
+      System.out.println("D7 = " + D7);
+      System.out.println();
+   }
+
+   private void instructionCheck() throws HaltException{                  //인스트럭션 체크하고 명령어에 따라 T3, T4, T5 ... 할일 결정
+      System.out.println("T3 : ");
+      System.out.println("instruction : " + symbolCheck(IR));
+      if(head == 7){      //D7 = 1 이고, I = 0 인경우
+         System.out.println("Excute register-reference instruction");
+         switch(symbol) {
+         case "CLA":
+            AC = 0;
+            System.out.println("AC <- 0");
+            System.out.println("AC = " + AC);
+            System.out.println("AC = " + Integer.toHexString(AC + 0x10000).substring(1));
+            break;
+         case "CLE":
+            E = 0;
+            System.out.println("E <- 0");
+            System.out.println("E = " + E);
+            System.out.println();
+            break;
+         case "CMA":
+            AC = (short)~AC;
+            System.out.println("AC <- ~AC");
+            System.out.println("AC = " + Integer.toHexString(AC + 0x10000).substring(1));
+            break;
+         case "CME":
+            if(E == 0){
+               E = 1;
+            }
+            else{
+               E = 0;
+            }
+            System.out.println("E <- ~E");
+            System.out.println("E = " + E);
+            break;
+         case "CIR":
+            E = (short) (AC & 0x0001); AC = (short) ((short)AC >> 1);
+            System.out.println("AC <- shr AC, AC(15) <- E, E <- AC(0)");
+            System.out.println("AC : " + Integer.toHexString(AC + 0x10000).substring(1) + ", E : " + E);
+            break;
+         case "CIL":
+            E = I; AC = (short) ((short)AC << 1);
+            System.out.println("AC <- shl AC, AC(0) <- E, E <- AC(15)");
+            System.out.println("AC : " + Integer.toHexString(AC + 0x10000).substring(1) + ", E : " + E);
+            break;
+         case "INC":
+            AC = (short) ((short)AC + (short)1);
+            System.out.println("AC <- AC + 1");
+            System.out.println("AC : " + Integer.toHexString(AC + 0x10000).substring(1));
+            break;
+         case "SPA":
+            if(I == 0)
+               PC = (short) ((short)PC + (short)1);
+            System.out.println("If(AC(15) = 0) then (PC <- PC + 1)");
+            System.out.println("PC : " + Integer.toHexString(PC + 0x10000).substring(1));
+            break;
+         case "SNA":
+            if(I == 1)
+               PC = (short) (PC + 1);
+            System.out.println("If(AC(15) = 1) then (PC <- PC + 1)");
+            System.out.println("PC : " + Integer.toHexString(PC + 0x10000).substring(1));
+            break;
+         case "SZA":
+            if(AC == 0)
+               PC = (short) (PC + 1);
+            System.out.println("If(AC = 0) then (PC <- PC + 1)");
+            System.out.println("PC : " + 
+            Integer.toHexString(PC + 0x10000).substring(1));
+            break;
+         case "SZE":
+            if(E == 0)
+               PC = (short) (PC + 1);
+            System.out.println("If(E = 0) then (PC <- PC + 1)");
+            System.out.println("E : " + E + ", PC : " + 
+            Integer.toHexString(PC + 0x10000).substring(1));
+            break;
+         case "HLT":
+            System.out.println("Halt Computer");
+            S = 0;
+            throw new HaltException();
+         }
+         SC = 0;
+         System.out.println("SC <- " + SC);
+         System.out.println("SC = " + SC);
+      }
+      else if(head == 0xf){  //D7 = 1 이고, I = 1 인경우
+         System.out.println("Excute input-output instruction");
+         switch(symbol){
+         case "INP":
+            System.out.println("AC(0-7) <- INPR, FGI <- 0");
+            System.out.println("AC(0-7) = " + 
+            Integer.toHexString(0x00ff & AC).substring(1));
+            AC = INPR; FGI = 0;
+            break;
+         case "OUT":
+            System.out.println("OUTR <- AC(0-7), FGO <- 0");
+            OUTR = (short) (0x00ff & AC); FGO = 0;
+            break;
+         case "SKI":
+            System.out.println("If(FGI = 1) then (PC <- PC + 1)");
+            if(FGI == 1){
+               PC += 1;
+            }
+            break;
+         case "SKO":
+            System.out.println("If(FGO = 1) then (PC <- PC + 1)");
+            if(FGO==1){
+               PC+=1;
+            }
+            break;
+         case "ION":
+            System.out.println("IEN <- 1");
+            IEN = 1;
+            break;
+         case "IOF":
+            System.out.println("IEN <- 0");
+            IEN = 0;
+            break;
+         }
+
+      }
+      else{
+         if(I == 1){
+            System.out.println("AR <- M[AR]");
+            AR = M[AR];
+            System.out.println("AR = " + 
+            Integer.toHexString(AR + 0x10000).substring(1));
+         }
+         else{
+            System.out.println("Nothing");
+         }
+         System.out.println();
+
+         switch(symbol){
+         case "AND":
+            System.out.println("T4 : ");
+            System.out.println("DR <- M[AR]");
+            DR = M[AR];
+            System.out.println("DR = " + 
+            Integer.toHexString(DR + 0x10000).substring(1));
+            System.out.println();
+
+            System.out.println("T5 : ");
+            System.out.println("AC <- AC ^ DR");
+            System.out.println("SC <- 0");
+            AC = (short) (AC & DR);
+            SC = 0;
+            System.out.println("AC = " + 
+            Integer.toHexString(DR + 0x10000).substring(1));
+            System.out.println("SC = " + SC);
+            break;
+         case "ADD":
+            int Cout = 0;
+            System.out.println("T4 : ");
+            System.out.println("DR <- M[AR]");
+            DR = M[AR];
+            System.out.println("DR = " + 
+            Integer.toHexString(DR + 0x10000).substring(1));
+            System.out.println();
+
+            System.out.println("T5 : ");
+            System.out.println("AC <- AC + DR");
+            System.out.println("E <- Cout");
+            System.out.println("SC <- 0");
+            if(AC < 0 && AC + DR < 0 && DR > 0 || AC > 0 && AC + DR > 0 && DR < 0){ //오버플로우가 일어났을때
+               Cout = 1;
+            }
+            AC = (short) (AC + DR);
+            E = (short) Cout;
+            SC = 0;
+            System.out.println("AC = " + 
+            Integer.toHexString(AC + 0x10000).substring(1));
+            System.out.println("E = " + E);
+            System.out.println("SC = " + SC);
+            break;
+         case "LDA":
+            System.out.println("T4 : ");
+            System.out.println("DR <- M[AR]");
+            DR = M[AR];
+            System.out.println("DR = " + Integer.toHexString(DR + 0x100000).substring(1));
+            System.out.println();
+
+            System.out.println("T5 : ");
+            System.out.println("AC <- DR");
+            System.out.println("SC <- 0");
+            AC = DR;
+            SC = 0;
+            System.out.println("AC = " + 
+            Integer.toHexString(AC + 0x100000).substring(1));
+            System.out.println("SC = " + SC);
+            break;
+         case "STA":
+            System.out.println("T4 : ");
+            System.out.println("M[AR] <- AC");
+            System.out.println("SC <- 0");
+            M[AR] = AC;
+            SC = 0;
+            System.out.println("M[AR] = " + 
+            Integer.toHexString(M[AR] + 0x10000).substring(1));
+            System.out.println("SC = " + SC);
+            break;
+         case "BUN":
+            System.out.println("T4 : ");
+            System.out.println("PC <- AR");
+            System.out.println("SC <- 0");
+            PC = AR;
+            SC = 0;
+            System.out.println("PC = " + 
+            Integer.toHexString(PC + 0x10000).substring(1));
+            System.out.println("SC = " + 0);
+            break;
+         case "BSA":
+            System.out.println("T4 : ");
+            System.out.println("M[AR] <- PC");
+            System.out.println("AR <- AR + 1");
+            M[AR] = PC;
+            AR = (short) (AR + 1);
+            System.out.println("M[AR] = " + 
+            Integer.toHexString(M[AR] + 0x10000).substring(1));
+            System.out.println("AR = " + 
+            Integer.toHexString(AR + 0x10000).substring(2));
+            System.out.println();
+
+            System.out.println("T5 : ");
+            System.out.println("PC <- AR");
+            System.out.println("SC <- 0");
+            PC = AR;
+            SC = 0;
+            System.out.println("PC = " + 
+            Integer.toHexString(PC + 0x10000).substring(1));
+            System.out.println("SC = " + SC);
+            break;
+         case "ISZ":
+            System.out.println("T4 : ");
+            System.out.println("DR <- M[AR]");
+            DR = M[AR];
+            System.out.println("DR = " + 
+            Integer.toHexString(DR + 0x10000).substring(1));
+            System.out.println();
+
+            System.out.println("T5 : ");
+            System.out.println("DR = DR + 1");
+            DR = (short) (DR + 1);
+            System.out.println("DR = " + 
+            Integer.toHexString(DR + 0x10000).substring(1));
+            System.out.println();
+
+            System.out.println("T6 : ");
+            System.out.println("M[AR] <- DR");
+            System.out.println("If(DR = 0) then (PC <- PC + 1)");
+            System.out.println("SC <- 0");
+            M[AR] = DR;
+            if(DR == 0){
+               PC = (short) (PC + 1);
+            }
+            SC = 0;
+            System.out.println("M[AR] = " + 
+            Integer.toHexString(M[AR] + 0x10000).substring(1));
+            System.out.println("PC = " + 
+            Integer.toHexString(PC + 0x10000).substring(1));
+            System.out.println("SC = " + SC);
+         }
+      }
+   }
+
+   void printCycle(){    //명령어 사이클을 눈에 보이게 프린트 해준다.
+      try{
+         while(true){
+            System.out.println("--------------- Location : " 
+            + Integer.toHexString(PC + 0x10000).substring(2) + "------------------");
+            start();
+            T0();
+            T1();
+            T2();
+            instructionCheck();
+            System.out.println("-------------------------------------------------------");
+            System.out.println();
+         }
+      }
+      catch(HaltException e){  //Halt 명령어 만나면 종료.
+         System.out.println("종료 됩니다.");
+      }
+   }
+}
+
+class HaltException extends Exception{   //Halt 명령수행하기위해 만든 예외 클래스
+   HaltException(){
+      super();
+   }
+}
+
+class Assembler{							//어셈블리어를 기계어로 바꿔주는 Class
+	String[] program=new String[100];		//어셈블리어 코드
+	
+	Assembler(int r){
+		if(r==1)
+			setProgram1(); //표 6-8
+		else if(r==2)
+			setProgram2(); //표 6-13
+		else
+			setProgram3(); //표 6-16
+	}
+	
+	void setProgram1(){				 //표 6-8
+		program[0]="ORG 100";
+		program[1]="LDA 107";
+		program[2]="CMA";
+		program[3]="INC";
+		program[4]="ADD 106";
+		program[5]="STA 108";
+		program[6]="HLT";
+		program[7]="HEX 0053";
+		program[8]="HEX FFE9";
+		program[9]="HEX 0000";
+		program[10]="END";
+	}
+	
+	void setProgram2(){ 			//표 6-13
+		program[0]="ORG 100";
+		program[1]="LDA 10B";
+		program[2]="STA 10C";
+		program[3]="LDA 10D";
+		program[4]="STA 10E";
+		program[5]="CLA";
+		program[6]="ADD 10C I";
+		program[7]="ISZ 10C";
+		program[8]="ISZ 10E";
+		program[9]="BUN 105";
+		program[10]="STA 10F";
+		program[11]="HLT";
+		program[12]="HEX 0150";
+		program[13]="HEX 0000";
+		program[14]="HEX FF9C";
+		program[15]="HEX 0000";
+		program[16]="HEX 0000";
+		program[17]="ORG 150";
+		program[18]="HEX 004B";
+		program[19]="HEX 0017";
+		program[20]="END";
+	}
+	
+	void setProgram3(){			 //표 6-16
+		program[0]="ORG 100";
+		program[1]="LDA 107";
+		program[2]="BSA 109";
+		program[3]="STA 107";
+		program[4]="LDA 108";
+		program[5]="BSA 109";
+		program[6]="STA 108";
+		program[7]="HLT";
+		program[8]="HEX 1234";
+		program[9]="HEX 4321";
+		program[10]="HEX 0000";
+		program[11]="CIL";
+		program[12]="CIL";
+		program[13]="CIL";
+		program[14]="CIL";
+		program[15]="AND 110";
+		program[16]="BUN 109 I";
+		program[17]="HEX FFF0";
+		program[18]="END";
+	}
+	
+	int[] setHexcode(int[] m){
+
+		int AR=0;
+		
+		for(int i=0;true;i++){
+			String symbol=program[i].substring(0,3);
+			
+			int address = 0;
+			if (program[i].length()>=7)
+				address=HexToDec(program[i].substring(4,7));
+			
+			String indirect="";
+			if (program[i].length()>=9)
+				indirect=program[i].substring(8,9);
+			
+			if (indirect.equals("I")) {
+				switch (symbol) {
+				case "AND":
+					m[AR] = 0X8000+address;
+					break;
+				case "ADD":
+					m[AR] = 0X9000+address;
+					break;
+				case "LDA":
+					m[AR] = 0Xa000+address;
+					break;
+				case "STA":
+					m[AR] = 0Xb000+address;
+					break;
+				case "BUN":
+					m[AR] = 0Xc000+address;
+					break;
+				case "BSA":
+					m[AR] = 0Xd000+address;
+					break;
+				case "ISZ":
+					m[AR] = 0Xe000+address;
+					break;
+				}
+			}
+			else{
+				switch (symbol) {
+				case "AND":
+					m[AR] = 0X000+address;
+					break;
+				case "ADD":
+					m[AR] = 0X1000+address;
+					break;
+				case "LDA":
+					m[AR] = 0X2000+address;
+					break;
+				case "STA":
+					m[AR] = 0X3000+address;
+					break;
+				case "BUN":
+					m[AR] = 0X4000+address;
+					break;
+				case "BSA":
+					m[AR] = 0X5000+address;
+					break;
+				case "ISZ":
+					m[AR] = 0X6000+address;
+					break;
+				}
+			}
+			switch (symbol) {
+			case "CLA":
+				m[AR] = 0X7800;
+				break;
+			case "CLE":
+				m[AR] = 0X7400;
+				break;
+			case "CMA":
+				m[AR] = 0X7200;
+				break;
+			case "CME":
+				m[AR] = 0X7100;
+				break;
+			case "CIR":
+				m[AR] = 0X7080;
+				break;
+			case "CIL":
+				m[AR] = 0X7040;
+				break;
+			case "INC":
+				m[AR] = 0X7020;
+				break;
+			case "SPA":
+				m[AR] = 0X7010;
+				break;
+			case "SNA":
+				m[AR] = 0X7008;
+				break;
+			case "SZA":
+				m[AR] = 0X7004;
+				break;
+			case "SZE":
+				m[AR] = 0X7002;
+				break;
+			case "HLT":
+				m[AR] = 0X7001;
+				break;
+			case "INP":
+				m[AR] = 0Xf800;
+				break;
+			case "OUT":
+				m[AR] = 0Xf400;
+				break;
+			case "SKI":
+				m[AR] = 0Xf200;
+				break;
+			case "SKO":
+				m[AR] = 0Xf100;
+				break;
+			case "ION":
+				m[AR] = 0Xf080;
+				break;
+			case "IOF":
+				m[AR] = 0Xf040;
+				break;
+			case "ORG":
+				AR=address-1;
+				break;
+			case "HEX":
+				m[AR] = (short)HexToDec(program[i].substring(4,8));
+				break;
+			case "END":
+				return m;
+			}
+			AR++;
+		}
+	}
+	
+	int HexToDec(String hex){
+		int dec=0;
+		for(int i=0; i<hex.length(); i++){
+			switch (hex.substring(i, i+1)) {
+			case "1":
+				dec+=1*power(hex.length()-1-i);
+				break;
+			case "2":
+				dec+=2*power(hex.length()-1-i);
+				break;
+			case "3":
+				dec+=3*power(hex.length()-1-i);
+				break;
+			case "4":
+				dec+=4*power(hex.length()-1-i);
+				break;
+			case "5":
+				dec+=5*power(hex.length()-1-i);
+				break;
+			case "6":
+				dec+=6*power(hex.length()-1-i);
+				break;
+			case "7":
+				dec+=7*power(hex.length()-1-i);
+				break;
+			case "8":
+				dec+=8*power(hex.length()-1-i);
+				break;
+			case "9":
+				dec+=9*power(hex.length()-1-i);
+				break;
+			case "A":
+				dec+=10*power(hex.length()-1-i);
+				break;
+			case "B":
+				dec+=11*power(hex.length()-1-i);
+				break;
+			case "C":
+				dec+=12*power(hex.length()-1-i);
+				break;
+			case "D":
+				dec+=13*power(hex.length()-1-i);
+				break;
+			case "E":
+				dec+=14*power(hex.length()-1-i);
+				break;
+			case "F":
+				dec+=15*power(hex.length()-1-i);
+				break;
+			}
+		}
+		return dec;
+	}
+	int power(int x){
+		return x>0?16*power(x-1):1;
+	}
+}
